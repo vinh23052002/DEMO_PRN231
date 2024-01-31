@@ -1,0 +1,259 @@
+﻿@model IEnumerable<DEMO_PRN231_SE1627.Models.Product>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a>Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UnitPrice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UnitsInStock)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Image)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Category)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr id="@item.ProductId" data-product-id="@item.ProductId"
+                data-product-name="@item.ProductName"
+                data-unit-price="@item.UnitPrice"
+                data-units-in-stock="@item.UnitsInStock"
+                data-image="@item.Image"
+                data-category-id="@item.Category.CategoryId">
+                <td>
+                    <a href="" onclick="getProduct(@item.ProductId)">
+                        @Html.DisplayFor(modelItem => item.ProductId)
+                    </a>
+                </td>
+                <td class="productName">
+                    @Html.DisplayFor(modelItem => item.ProductName)
+                </td>
+                <td class="unitPrice">
+                    @Html.DisplayFor(modelItem => item.UnitPrice)
+                </td>
+                <td class="unitsInStock">
+                    @Html.DisplayFor(modelItem => item.UnitsInStock)
+                </td>
+                <td class="image">
+                    @Html.DisplayFor(modelItem => item.Image)
+                </td>
+                <td class="category">
+                    @Html.DisplayFor(modelItem => item.Category.CategoryName)
+                </td>
+                <td>
+                    @* <a href='../Products/Delete?id=@item.ProductId'>Delete</a> *@
+                    <a href="" onclick="deleteProduct(@item.ProductId)">Delete</a>
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>
+
+<form>
+    <div class="form-group">
+        <label>ProductID</label>
+        <input type="text" class="form-control" id="productId" name="ProductId">
+    </div>
+
+    <div class="form-group">
+        <label>ProductName</label>
+        <input type="text" class="form-control" id="productName" name="ProductName">
+    </div>
+
+    <div class="form-group">
+        <label>UnitPrice</label>
+        <input type="text" class="form-control" id="unitPrice" name="UnitPrice">
+    </div>
+
+    <div class="form-group">
+        <label>UnitInStock</label>
+        <input type="text" class="form-control" id="unitsInStock" name="UnitInStock">
+    </div>
+
+    <div class="form-group">
+        <label>Image</label>
+        <input type="text" class="form-control" id="image" name="Image">
+    </div>
+
+    <div class="form-group">
+        <label>Category</label>
+        <select class="form-control" id="category" asp-items="ViewBag.Category" name="CategoryId"></select>
+    </div>
+    <Button onclick="updateProduct()">Update</Button>
+    <button onclick="addProduct()">Add</button>
+
+</form>
+<script>
+    const updateProduct = () => {
+        event.preventDefault();
+        const data = new FormData(document.querySelector('form'));
+        fetch("/Products/UpdateProduct", {
+            method: "POST",
+            body: data
+        })
+            .then(res => {
+                console.log(res)
+                if (res.ok) {
+                    return res
+                }
+                else {
+                    throw new Error("Error in updateProduct")
+                }
+            })
+            .then(res => {
+                const tableRow = document.getElementById(productId.value)
+                tableRow.dataset.productName = productName.value;
+                tableRow.dataset.unitPrice = unitPrice.value;
+                tableRow.dataset.unitsInStock = unitsInStock.value;
+                tableRow.dataset.image = image.value;
+                tableRow.dataset.categoryId = category.value;
+
+                tableRow.querySelector('.productName').innerHTML = productName.value;
+                tableRow.querySelector('.unitPrice').innerHTML = unitPrice.value;
+                tableRow.querySelector('.unitsInStock').innerHTML = unitsInStock.value;
+                tableRow.querySelector('.image').innerHTML = image.value;
+                tableRow.querySelector('.category').innerHTML = category.options[category.selectedIndex].text;
+
+            })
+    }
+
+
+    const deleteProduct = (id) => {
+        event.preventDefault();
+        if (confirm("Are you sure delete this product!!")) {
+
+            var http = new XMLHttpRequest();
+            http.open("GET", "/Products/Delete/" + id, true);
+            http.onreadystatechange = function () {
+                if (this.status == 200 && this.readyState == 4) {
+                    const tableRow = document.getElementById(id);
+                    tableRow.remove();
+                }
+            }
+            http.send();
+        }
+    }
+
+    const addProduct = () => {
+        event.preventDefault();
+        const data = new FormData(document.querySelector('form'));
+
+    }
+</script>
+
+
+@* Cach dung jquery *@
+@* <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script> *@
+@* <script>
+        const getProduct = (id) => {
+            event.preventDefault();
+            $.ajax({
+                url: '/Products/GetProduct',
+                type: 'GET',
+                data: { id: id },
+                success: function (data) {
+                    console.log(data);
+                    $('#productId').val(data.productId);
+                    $('#productName').val(data.productName);
+                    $('#unitPrice').val(data.unitPrice);
+                    $('#unitsInStock').val(data.unitsInStock);
+                    $('#image').val(data.image);
+                    $('#category').val(data.categoryId);
+                }
+            });
+        }
+    </script> *@
+
+@* Cach dung XMLHttpRequest *@
+@* <script>
+        const getProduct = (id) => {
+            event.preventDefault();
+            var http = new XMLHttpRequest();
+            http.open("GET", "/Products/GetProduct?id=" + id, true);
+            http.send();
+            http.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(this.responseText);
+                    var data = JSON.parse(this.responseText);
+                    console.log(data);
+                    productId.value = data.productId;
+                    productName.value = data.productName;
+                    document.getElementById("unitPrice").value = data.unitPrice;
+                    document.getElementById("unitsInStock").value = data.unitsInStock;
+                    document.getElementById("image").value = data.image;
+                    document.getElementById("category").value = data.categoryId;
+                }
+            }
+        }
+    </script> *@
+
+@* Cach dung data atribite *@
+@* <script>
+        const getProduct = (id) => {
+            event.preventDefault();
+
+            var tr = document.getElementById(id);
+            var data = {
+                productId: tr.dataset.productId,
+                productName: tr.dataset.productName,
+                unitPrice: tr.dataset.unitPrice,
+                unitsInStock: tr.dataset.unitsInStock,
+                image: tr.dataset.image,
+                categoryId: tr.dataset.categoryId
+            };
+
+            document.getElementById("productId").value = data.productId;
+            document.getElementById("productName").value = data.productName;
+            document.getElementById("unitPrice").value = data.unitPrice;
+            document.getElementById("unitsInStock").value = data.unitsInStock;
+            document.getElementById("image").value = data.image;
+            document.getElementById("category").value = data.categoryId;
+        }
+    </script> *@
+
+@* Cach dung fetch *@
+<script>
+    const getProduct = (id) => {
+        event.preventDefault();
+        fetch("/Products/GetProduct?id=" + id)
+            .then(res => {
+                if (res.ok) {
+                    return res.json();
+                }
+                else {
+                    throw new Error("Error");
+                }
+            })
+            .then(data => {
+                productId.value = data.productId;
+                productName.value = data.productName;
+                document.getElementById("unitPrice").value = data.unitPrice;
+                document.getElementById("unitsInStock").value = data.unitsInStock;
+                document.getElementById("image").value = data.image;
+                document.getElementById("category").value = data.categoryId;
+            })
+    }
+</script>

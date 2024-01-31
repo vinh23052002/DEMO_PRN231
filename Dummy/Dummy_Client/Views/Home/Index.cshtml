@@ -1,0 +1,45 @@
+﻿@model IEnumerable<Dummy_Client.DTO.DummyDetailResponse>
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<form action="/Home/Index" method="get">
+    <label>Detail Name</label>
+    <input id="detailName" name="detailName" /><br />
+    <label>Master</label>
+    <select id="master" asp-items="ViewBag.listM" name="masterName"></select><br />
+    <button type="submit">Filter</button>
+</form>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Master</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.DetailId</td>
+                <td>@item.DetailName</td>
+                <td>@item.Master.MasterName</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    var urlParams = new URLSearchParams(window.location.search)
+    var detailName = urlParams.get('detailName')
+    var masterName = urlParams.get('masterName')
+
+    document.getElementById("detailName").value = detailName
+    document.getElementById('master').value = masterName
+</script>
+
+
+
