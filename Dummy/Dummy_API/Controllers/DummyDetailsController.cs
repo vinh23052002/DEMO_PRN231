@@ -26,6 +26,38 @@ namespace Dummy_API.Controllers
             }
             return await _context.DummyDetails.ToListAsync();
         }
+        [HttpGet("GetByMaster")]
+        public async Task<ActionResult<DummyDetailResponse>> GetDummyDetail(string? master)
+        {
+            if (_context.DummyDetails == null)
+            {
+                return NotFound();
+            }
+
+            IQueryable<DummyDetail> query = _context.DummyDetails.Include(p => p.Master);
+
+            if (!string.IsNullOrWhiteSpace(master))
+            {
+                query = query.Where(p => p.Master.MasterName.ToLower().Contains(master.ToLower().Trim()));
+            }
+
+            var dummyDetails = await query.ToListAsync();
+
+            var res = dummyDetails.Select(p => new DummyDetailResponse
+            {
+                DetailId = p.DetailId,
+                DetailName = p.DetailName,
+                MasterId = p.MasterId,
+                Master = new DummyMasterResponse
+                {
+                    MasterId = p.MasterId,
+                    MasterName = p.Master.MasterName
+                }
+            });
+
+            return Ok(res);
+        }
+
 
         // GET: api/DummyDetails/5
         [HttpGet("{id}")]
@@ -53,8 +85,19 @@ namespace Dummy_API.Controllers
             }
             var dummyDetails = await _context.DummyDetails
                                     .Include(p => p.Master)
-                                    .Where(p => p.DetailName.ToLower().Contains(req.detail_name.ToLower()) && p.Master.MasterName.ToLower().Contains(req.master_name.ToLower()))
+                                    .Where(p => p.DetailName.ToLower().Equals(req.detail_name.ToLower()) && p.Master.MasterName.ToLower().Equals(req.master_name.ToLower()))
                                     .ToListAsync();
+
+            if (!req.master_name.Equals(""))
+            {
+                dummyDetails = dummyDetails.Where(p => p.Master.MasterName.ToLower().Equals(req.master_name.ToLower())).ToList();
+            }
+
+            if (!req.detail_name.Equals(""))
+            {
+                dummyDetails = dummyDetails.Where(p => p.DetailName.ToLower().Equals(req.detail_name.ToLower())).ToList();
+            }
+
 
             var res = dummyDetails.Select(p => new DummyDetailResponse
             {

@@ -11,6 +11,14 @@
     <select id="master" asp-items="ViewBag.listM" name="masterName"></select><br />
     <button type="submit">Filter</button>
 </form>
+<style>
+
+    th, td {
+        border: 1px solid black;
+        padding: 8px;
+        text-align: left;
+    }
+</style>
 
 <table>
     <thead>
@@ -31,7 +39,16 @@
         }
     </tbody>
 </table>
+<script>
+    var masterDropdown = document.getElementById('master');
 
+    var allOption = document.createElement('option');
+    allOption.value = '';
+    allOption.text = '------ all -------';
+
+    masterDropdown.add(allOption, masterDropdown[0]);
+
+</script>
 <script>
     var urlParams = new URLSearchParams(window.location.search)
     var detailName = urlParams.get('detailName')
@@ -39,7 +56,9 @@
 
     document.getElementById("detailName").value = detailName
     document.getElementById('master').value = masterName
+
 </script>
+
 
 
 

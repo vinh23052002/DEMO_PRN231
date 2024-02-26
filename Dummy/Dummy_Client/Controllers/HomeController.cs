@@ -51,7 +51,6 @@ namespace Dummy_Client.Controllers
 
                 }
             }
-            listMaster.Insert(0, new DummyMasterResponse());
             ViewData["listM"] = new SelectList(listMaster, "MasterName", "MasterName");
 
             return View(listResponse);
