@@ -1,0 +1,121 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        border: 1px solid black;
+        padding: 10px;
+        text-align: left;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    input {
+        padding: 10px;
+        margin: 10px;
+    }
+
+    button {
+        padding: 10px;
+        margin: 10px;
+    }
+
+    .container {
+        display: flex;
+    }
+
+    .left {
+        float: left;
+        width: 50%;
+    }
+
+    .right {
+        margin-left: 100px;
+        float: right;
+        width: 50%;
+    }
+</style>
+
+<body>
+    <h3>Search Stars</h3>
+    <input type="text" placeholder="Nationality" id="nationality" />
+    <input type="text" placeholder="Gender" id="gender" />
+    <button onclick="search()">Search</button>
+
+    <div class="container">
+        <div class="left">
+            <table>
+                <thead>
+                <th>StarId</th>
+                <th>FullName</th>
+                <th>Gender</th>
+                <th>Dob</th>
+                <th>Description</th>
+                <th>Nationality</th>
+                <th></th>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <div class="right" style="display: none;" id="detail">
+            <h3 id="nameStart">List of movies of '' </h3>
+            <div id="movies">
+                <div>Movie Name - Release year: </div>
+            </div>
+        </div>
+</body>
+<script>
+    const search = () => {
+        var Nationality = document.getElementById("nationality").value;
+        var Gender = document.getElementById("gender").value;
+
+        fetch(`http://localhost:5000/api/Start/GetStarts/${Nationality}/${Gender}`)
+            .then((res) => res.json())
+            .then((data) => {
+                console.log(data);
+                var html;
+                Array.from(data).forEach((e) => {
+                    html += `
+        <tr>
+          <td>${e.id}</td>
+          <td>${e.fullName}</td>
+          <td>${e.gender}</td>
+          <td>${e.dobString}</td>
+          <td>${e.description}</td>
+          <td>${e.nationality}</td>
+          <td>
+            <a href = "#" onclick ="detail(${e.id})">Detail</a>
+          </td>
+        </tr>`;
+                });
+                document.querySelector("tbody").innerHTML = html;
+            });
+    };
+
+    const detail = (id) => {
+        fetch(`http://localhost:5000/api/Start/GetStar/${id}`)
+            .then((res) => res.json())
+            .then(data => {
+                console.log(data);
+                document.getElementById('detail').style.display = '';
+                document.getElementById('nameStart').innerHTML = `List of movies of ${data.fullName}`;
+                var html = '';
+                Array.from(data.movies).forEach(e => {
+                    html += `<div>${e.title} - ${e.releaseYear}</div>`;
+                });
+                document.getElementById('movies').innerHTML = html;
+            })
+    }
+
+</script>

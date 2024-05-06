@@ -1,0 +1,97 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Question</title>
+  </head>
+  <body>
+    <h2 style="color: aqua">Câu hỏi:</h2>
+    <br />
+    <form id="questionForm">
+      <label for="answer_A"
+        ><input type="radio" id="answer_A" name="answer" value="A" /> A. Lựa
+        chọn A</label
+      ><br />
+      <label for="answer_B"
+        ><input type="radio" id="answer_B" name="answer" value="B" /> B. Lựa
+        chọn B</label
+      ><br />
+      <label for="answer_C"
+        ><input type="radio" id="answer_C" name="answer" value="C" /> C. Lựa
+        chọn C</label
+      ><br />
+      <label for="answer_D"
+        ><input type="radio" id="answer_D" name="answer" value="D" /> D. Lựa
+        chọn D</label
+      ><br />
+    </form>
+  </body>
+  <script>
+    var listData = [];
+    var count = 0;
+
+    const getData = async () => {
+      try {
+        const res = await fetch("https://localhost:7102/api/Question");
+        const data = await res.json();
+        listData = data;
+        console.log(listData);
+      } catch (error) {
+        console.error("Failed to fetch questions:", error);
+      }
+    };
+
+    const loadQuestion = () => {
+      if (count < listData.length) {
+        document.querySelector("h2").innerHTML = listData[count].content;
+
+        const answers = ["a", "b", "c", "d"];
+        answers.forEach((answer) => {
+          const inputSelector = `input[id='answer_${answer.toUpperCase()}']`;
+          const labelSelector = `label[for='answer_${answer.toUpperCase()}']`;
+          const inputElement = document.querySelector(inputSelector);
+          const labelElement = document.querySelector(labelSelector);
+
+          labelElement.innerHTML =
+            `<input type='radio' id='answer_${answer.toUpperCase()}' name='answer' value='${answer.toUpperCase()}' /> ${answer.toUpperCase()}. ` +
+            listData[count][answer];
+
+          // Re-add event listeners after updating the innerHTML
+          document
+            .querySelector(inputSelector)
+            .addEventListener("click", submitAnswer);
+        });
+      } else {
+        alert("You have completed the quiz.");
+      }
+    };
+
+    const submitAnswer = () => {
+      const selectedAnswer = document.querySelector(
+        "input[name='answer']:checked"
+      );
+      if (selectedAnswer) {
+        if (
+          selectedAnswer.value.toUpperCase().trim() ===
+          listData[count].answer.toUpperCase().trim()
+        ) {
+          console.log("Correct");
+          count++;
+          loadQuestion();
+        } else {
+          console.log("Incorrect");
+        }
+
+        document.getElementById("questionForm").reset();
+      } else {
+        console.log("Het Question");
+      }
+    };
+
+    // IIFE to load the initial question
+    (async () => {
+      await getData();
+      loadQuestion();
+    })();
+  </script>
+</html>

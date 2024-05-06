@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border: 1px solid black;
+        padding: 10px;
+        text-align: left;
+      }
+
+      tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+      input {
+        padding: 10px;
+        margin: 10px;
+      }
+      button {
+        padding: 10px;
+        margin: 10px;
+      }
+      .container {
+        display: flex;
+      }
+      .left {
+        float: left;
+        width: 50%;
+        /* border-left: solid 1px black; */
+      }
+      .right {
+        margin-left: 100px;
+        float: right;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="">
+      <div class="">
+        <table>
+          <thead id="thead">
+            <!-- <th>ScheduleId</th>
+            <th>Room</th>
+            <th>TimeSlot</th>
+            <th>Movie</th>
+            <th>Note</th> -->
+          </thead>
+          <tbody>
+            <tr>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+  <script>
+    var projects;
+    var timeSlot;
+    var employees;
+    var pCount;
+
+    fetch("http://localhost:5100/api/Project/List")
+      .then((res) => res.json())
+      .then((data) => {
+        projects = data;
+        pCount = Array.from(data).Count();
+        var html = "";
+        Array.from(data).forEach((e) => {
+          html += `<th>${data.ProjectName}</th>`;
+        });
+        document.getElementById("thead").innerHTML = html;
+        console.log("PROJECT", projects);
+      });
+
+    fetch("http://localhost:5100/api/Employee/List")
+      .then((res) => res.json())
+      .then((data) => {
+        employees = data;
+        var html = "";
+        Array.from(data).forEach((e) => {
+          html += `
+            <tr>
+                <td>${data.Name}</td>
+            
+          `;
+          for (i = 0; i < pCount; i++) {
+            html += `<td></td>`;
+          }
+          html += "</tr>";
+        });
+        console.log("EMPLOYEE", employees);
+      });
+
+    // fetch("http://localhost:5100/api/Movie/List")
+    // .then(res => res.json())
+    // .then(data => {
+    //     movie = data;
+    //     console.log("MOVIE",movie);
+    // })
+
+    const getRoom = (id) => {
+      return room.find((e) => e.id === id).title;
+    };
+    const getTimeSlot = (id) => {
+      time = timeSlot.find((e) => e.id === id);
+      return `${time.startTime} - ${time.endTime}`;
+    };
+    const getMovie = (id) => {
+      return movie.find((e) => e.id === id).title;
+    };
+
+    const loadSchedule = (date) => {
+      fetch(`http://localhost:5100/api/Schedule/List/${date}`)
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          Array.from(data).forEach((e) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                    <td>${e.id}</td>
+                    <td>${getRoom(e.roomId)}</td>
+                    <td>${getTimeSlot(e.timeSlotId)}</td>
+                    <td>${getMovie(e.movieId)}</td>
+                    <td>${e.note}</td>
+                `;
+            document.querySelector("tbody").appendChild(tr);
+          });
+        });
+    };
+    var time = new Date();
+    var date =
+      time.getMonth() + 1 + "-" + time.getDate() + "-" + time.getFullYear();
+    console.log("DATE", date);
+    loadSchedule(date);
+    scheduleOn.innerHTML = date;
+
+    const schedule = () => {
+      var date = document.getElementById("date").value;
+      console.log(date);
+      loadSchedule(date);
+    };
+  </script>
+</html>
